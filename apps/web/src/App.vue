@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
-import { quickRoutes } from "./config/routes";
+import BackToTop from "@/components/navigation/BackToTop.vue";
+import Header from "@/components/templates/Header.vue";
 </script>
 
 <template>
-    <header>
-        <div class="wrapper">
-            <nav>
-                <RouterLink v-for="route in quickRoutes" :key="route.path" :to="route.path">{{
-                    route.name
-                }}</RouterLink>
-            </nav>
-        </div>
-    </header>
-    <RouterView />
+    <div class="flex min-h-screen flex-col overflow-clip bg-base-100 text-base-content transition">
+        <Header />
+        <RouterView />
+        <BackToTop />
+    </div>
 </template>
