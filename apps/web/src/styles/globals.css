@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Inter";
+    font-weight: 100 900;
+    font-display: block;
+    font-style: normal;
+    font-named-instance: "Regular";
+    src: url("/fonts/Inter-roman.var.woff2") format("woff2");
+}
+@font-face {
+    font-family: "Inter";
+    font-weight: 100 900;
+    font-display: block;
+    font-style: italic;
+    font-named-instance: "Italic";
+    src: url("/fonts/Inter-italic.var.woff2") format("woff2");
+}
+
+[data-theme="light"] {
+    --scrollbar: #a3a3a3;
+    --scrollbar-hover: #737373;
+}
+[data-theme="dark"] {
+    --scrollbar: #404040;
+    --scrollbar-hover: #525252;
+}
+
+@layer utilities {
+    /* Scroll thumb styles */
+    .scrollbar::-webkit-scrollbar {
+        width: 0.4rem;
+        height: 0.4rem;
+    }
+
+    /* Scroll track styles */
+    .scrollbar::-webkit-scrollbar-track {
+        background: hsl(var(--b3));
+        border-radius: 4px;
+    }
+    .scrollbar::-webkit-scrollbar-track:hover,
+    .scrollbar::-webkit-scrollbar-track:active {
+        background: hsl(var(--b3));
+    }
+
+    /* Light mode */
+    .scrollbar::-webkit-scrollbar-thumb {
+        background: var(--scrollbar);
+        border-radius: 1rem;
+    }
+    .scrollbar::-webkit-scrollbar-thumb:active {
+        background-color: var(--scrollbar-hover);
+    }
+    .scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--scrollbar-hover);
+        box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.2);
+    }
+}

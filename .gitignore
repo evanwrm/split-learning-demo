@@ -1,0 +1,69 @@
+# Temporary and binary files
+*~
+*.py[cod]
+*$py.class
+*.so
+*.orig
+*.log
+*.pot
+__pycache__/*
+.cache/*
+.*.swp
+*/.ipynb_checkpoints/*
+.DS_Store
+
+# Project files
+.ropeproject
+.project
+.pydevproject
+.settings
+.idea
+tags
+
+# Env files
+.env*
+!.env*.example
+
+# Package files
+*.egg
+*.eggs/
+.installed.cfg
+*.egg-info
+
+# Unittest and coverage
+htmlcov/*
+.coverage
+.coverage.*
+.tox
+junit*.xml
+coverage.xml
+.pytest_cache/
+
+# Build and docs folder/files
+build/*
+dist/*
+sdist/*
+docs/api/*
+docs/_rst/*
+docs/_build/*
+cover/*
+MANIFEST
+
+# Virtualenvs
+.venv*/
+env/
+venv/
+env.bak/
+venv.bak/
+.conda*/
+.python-version
+
+# Dependency directories
+node_modules/
+
+# External vendors
+vendor/*
+letsencrypt/
+
+# Backups 
+backups/*

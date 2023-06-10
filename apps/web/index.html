@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Vite App</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000" />
+        <link rel="icon" href="/favicon.ico" />
+        <script>
+            // On page load or when changing themes, best to add inline in \`head\` to avoid FOUC
+            if ("theme" in localStorage) {
+                const systemPreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                const theme = localStorage.getItem("theme") || "system";
+                const resolvedTheme =
+                    theme === "system" ? (systemPreference ? "dark" : "light") : theme;
+
+                document.documentElement.setAttribute("data-theme", resolvedTheme);
+            }
+        </script>
+    </head>
+    <body class="scrollbar transition duration-150">
+        <div id="app"></div>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
+</html>
