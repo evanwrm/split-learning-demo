@@ -2,7 +2,12 @@
 import PlotFigure from "@/components/charts/PlotFigure.vue";
 import DrawingCanvas from "@/components/inputs/DrawingCanvas.vue";
 import Select from "@/components/ui/Select.vue";
-import { imageDataToGrayscaleF32, rescaleImageData } from "@/lib/utils/image";
+import {
+    f32Normalize,
+    imageDataRescale,
+    imageDataToF32,
+    imageDataToGrayscale
+} from "@/lib/utils/image";
 import { argmax, softmax } from "@/lib/utils/math";
 import { useOnnxStore } from "@/stores/onnx";
 import * as Plot from "@observablehq/plot";
@@ -16,14 +21,25 @@ const prediction = ref<number | null>(null);
 
 const onnx = useOnnxStore();
 const dataset = ref<"mnist" | "quickdraw">("mnist");
+const modelPath = ref<string | null>(null);
 
 watch([imageData, () => onnx.session], async () => {
     if (!imageData.value || !onnx.session || onnx.modelLoading) return;
 
     // preprocess
-    const rescaled = rescaleImageData(imageData.value, 28, 28);
-    const f32array = imageDataToGrayscaleF32(rescaled);
-    const input = new Tensor("float32", f32array, [1, 1, 28, 28]);
+    const rescaled = imageDataRescale(imageData.value, 28, 28);
+    const grayscale = imageDataToGrayscale(rescaled);
+    const f32array = imageDataToF32(grayscale);
+    const normalized = f32Normalize(f32array, [0.1307], [0.3081]);
+    const input = new Tensor("float32", normalized, [1, 1, 28, 28]);
+    let image = "";
+    for (let i = 0; i < 28; i++) {
+        for (let j = 0; j < 28; j++) {
+            image += f32array[i * 28 + j];
+        }
+        image += "\n";
+    }
+    console.log(image);
 
     const { output } = await onnx.runModel(input);
     const outputData = [...output.data] as number[];
@@ -39,10 +55,20 @@ const saveImage = (data: ImageData) => {
 };
 
 const modelFiles = {
-    mnist: "/models/mnist.onnx",
-    quickdraw: "/models/quickdraw.onnx"
+    mnist: [
+        { name: "MNIST", path: "/models/mnist.onnx" },
+        { name: "MNIST~old", path: "/models/mnist_default.onnx" }
+    ],
+    quickdraw: [{ name: "Quickdraw", path: "/models/quickdraw.onnx" }]
 };
-watchEffect(() => onnx.loadModel(modelFiles[dataset.value]));
+watchEffect(() => {
+    const availableModels = modelFiles[dataset.value];
+    const validModel = availableModels.find(m => m.path === modelPath.value);
+    const model = validModel && modelPath.value ? modelPath.value : availableModels[0].path;
+
+    modelPath.value = model;
+    onnx.loadModel(model);
+});
 </script>
 
 <template>
@@ -50,16 +76,35 @@ watchEffect(() => onnx.loadModel(modelFiles[dataset.value]));
         <section
             class="flex h-full w-full flex-1 flex-col items-center justify-center overflow-hidden px-4"
         >
-            <Select
-                label="Dataset"
-                :options="[
-                    { value: 'mnist', label: 'MNIST' },
-                    { value: 'quickdraw', label: 'QuickDraw' }
-                ]"
-                :selected-option="dataset"
-                @change="d => (dataset = d)"
-                class="mb-4"
-            />
+            <div class="flex items-center justify-center gap-4">
+                <Select
+                    label="Backend"
+                    :options="[
+                        { value: 'wasm', label: 'WASM' },
+                        { value: 'webgl', label: 'WebGL' }
+                    ]"
+                    :selected-option="onnx.sessionBackend"
+                    @change="d => onnx.setBackend(d)"
+                    class="mb-4"
+                />
+                <Select
+                    label="Model"
+                    :options="modelFiles[dataset].map(m => ({ value: m.path, label: m.name }))"
+                    :selected-option="modelPath ?? modelFiles[dataset][0].path"
+                    @change="d => (modelPath = d)"
+                    class="mb-4"
+                />
+                <Select
+                    label="Dataset"
+                    :options="[
+                        { value: 'mnist', label: 'MNIST' },
+                        { value: 'quickdraw', label: 'QuickDraw' }
+                    ]"
+                    :selected-option="dataset"
+                    @change="d => (dataset = d)"
+                    class="mb-4"
+                />
+            </div>
             <div class="flex">
                 <div>
                     <div class="flex items-center justify-center">

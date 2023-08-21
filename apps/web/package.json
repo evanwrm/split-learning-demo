@@ -4,6 +4,7 @@
     "private": true,
     "license": "MIT",
     "author": "Evan Madill <emadill@outlook.com>",
+    "type": "module",
     "scripts": {
         "build": "run-p type-check build-only",
         "build-only": "vite build",
@@ -46,6 +47,7 @@
         "tailwindcss": "^3.3.3",
         "typescript": "~5.1.6",
         "vite": "^4.4.9",
+        "vite-plugin-static-copy": "^0.17.0",
         "vue-tsc": "^1.8.8"
     },
     "packageManager": "pnpm@8.5.1",

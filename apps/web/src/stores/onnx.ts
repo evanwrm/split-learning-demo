@@ -33,6 +33,13 @@ export const useOnnxStore = defineStore("onnx", () => {
             modelLoading.value = false;
         }
     };
+
+    const setBackend = async (backend: ONNXBackend) => {
+        sessionBackend.value = backend;
+        if (modelFile.value) {
+            initSession(backend, modelFile.value);
+        }
+    };
     const loadModel = async (modelPath: string) => {
         const model = await fetchModel(modelPath);
         modelFile.value = model;
@@ -52,6 +59,7 @@ export const useOnnxStore = defineStore("onnx", () => {
         gpuSession,
         modelLoading,
         modelFile,
+        setBackend,
         loadModel,
         runModel
     };
