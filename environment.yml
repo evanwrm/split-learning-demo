@@ -1,0 +1,219 @@
+name: split-learning-demo
+channels:
+    - defaults
+    - conda-forge
+    - pytorch
+    # - huggingface
+    # - xformers
+    # - fastai
+    - plotly
+    # - pyviz
+    # - rapidsai
+    - nvidia
+dependencies:
+    # Language
+    - python>=3.9
+    # - mamba
+    # - conda-lock
+    - pip
+    # Common
+    - numpy
+    - scipy
+    - tqdm
+    - click
+    - shapely
+
+    # Dataframe
+    # - polars
+    - pandas
+    # - geopandas>=0.11
+
+    # EDA
+    # - raiwidgets
+    # - ydata-profiling
+
+    # Visualization
+    - matplotlib
+    - seaborn
+    # - ipympl
+    # - altair
+    # - yellowbrick
+    - plotly::plotly
+    # - holoviews
+    # - bokeh
+    # - datashader
+    # - hiplot
+
+    # Dashboards
+    # - dash
+    # - gradio
+    # - streamlit
+    # - voila
+    # - panel
+
+    # ML
+    - scikit-learn
+    # - imbalanced-learn
+    # - xgboost
+    # - catboost
+    # - lightgbm
+    # - statsmodels
+    # - u8darts
+    # - u8darts-all>=0.23.0
+    # - sktime
+    # - sktime-all-extras
+    # - tslearn
+    # - tsfresh>=0.19.0
+    # - scikit-fuzzy
+    - onnx
+    - onnxruntime
+    - pytorch::pytorch>=2.0.1
+    - pytorch::torchvision
+    # - pytorch::torchaudio
+    - pytorch::pytorch-cuda=11.8
+    # - pytorch::cpuonly
+    - lightning
+    # - jax
+    # - cuda-nvcc
+    # - cudatoolkit=11.2
+    # - cudnn=8.1.0
+    # - keras
+    # - fastai
+    # - spacy
+    # - tesseract
+    # - transformers
+    # - sentence-transformers
+    # - pytorch-tabnet
+    # - diffusers
+    # - timm
+    # - simulate
+    # - accelerate
+    # - optimum
+    - datasets
+    # - tokenizers
+    # - evaluate
+    - einops
+
+    # Federated Learning
+    # - syft
+    # - flwr
+    - opacus
+
+    # XAI
+    # - lime
+    # - shap
+    # - eli5
+    # - alibi
+    # - captum
+
+    # Hyperparameters
+    # - skopt
+    - optuna
+    # - hyperopt
+
+    # Experiment tracking
+    - tensorboard
+    - wandb
+    # - mlflow
+    # - neptune-client
+    # - hydra-core
+    # - nevergrad
+    # - ax-platform
+
+    # Distributed
+    # - modin-all
+    # - dask
+    # - ray
+    # - ray-default
+    # - rapids
+    - mpi4py
+
+    # Benchmarks
+    # - snakeviz
+
+    # Data format engines
+    - pyarrow>=4.0
+    # - pynio
+    # - cfgrib # grib2 files
+    # - python-cdo # grib1/2 netCDF,... files
+    # - netcdf4 # netCDF files
+    # - openpyxl
+    # - lxml
+    # - python-multipart
+    # - gdal<4.5 #They removed drivers requried by fiona for geopandas.
+    # - fiona
+    - safetensors
+
+    # Webservers
+    # - flask
+    - fastapi
+    - uvicorn-standard
+    # - gunicorn
+    - pydantic
+
+    # Databases / queues
+    # - psycopg2-binary
+    # - psycopg2 # build whl file (aarch64 requirement - host needs libpq-dev)
+    # - sqlalchemy
+    # - alembic
+    # - celery>=5.0
+
+    # Security
+    - python-jose
+    - cryptography
+
+    # Scraping / http clients
+    # - beautifulsoup4
+    # - fake-useragent
+    - httpx
+    # - aiohttp
+    - websockets
+
+    # Utilities
+    - pyyaml
+    - arrow
+    - rich
+    - natsort
+    - bitarray
+    # - cachetools
+    # - astral
+    # - pandas-ta
+
+    - pip:
+          # install in editable mode
+          - -e ./packages/split-learning-demo
+
+          # Pip only packages
+          # - tensorflow
+          # - tensorflow-probability
+          - flwr[simulation]
+          # - numpyro
+          # - funsor
+          # - icecream
+
+    ## Development
+    # Environment
+    - jupyterlab
+    - ipython
+    # - ipywidgets
+
+    # Quality
+    - black>=23.0
+    # - ruff
+    - isort
+    - flake8
+    # - mypy
+
+    # SCM
+    - pre_commit
+    - nbdime
+    - nbstripout
+
+    # Teting
+    # - pytest
+    # - pytest-cov
+    # - tox
+
+    # Docs
+    - sphinx
+    - recommonmark

@@ -1,0 +1,2 @@
+# Datasets
+SEED = 42
