@@ -9,6 +9,7 @@ import {
     SelectPositioner,
     SelectTrigger
 } from "@ark-ui/vue";
+import { Motion, Presence } from "motion/vue";
 import type { PropType } from "vue";
 import { computed } from "vue";
 
@@ -22,9 +23,12 @@ const props = defineProps({
     label: { type: String },
     placeholder: { type: String, default: "Select option..." },
     options: { type: Array as PropType<SelectOption[]>, required: true },
-    selectedOption: { type: Object as PropType<SelectOption | null>, default: null }
+    selectedOption: { type: String, default: null }
 });
-defineEmits(["update:selectedOption"]);
+defineEmits(["change"]);
+const currentOption = computed(() => {
+    return props.options.find(option => option.value === props.selectedOption);
+});
 const optionGroups = computed(() => {
     const groups = new Map<string, SelectOption[]>();
     for (const option of props.options) {
@@ -38,66 +42,77 @@ const optionGroups = computed(() => {
 });
 </script>
 <template>
-    <Select
-        v-slot="{ selectedOption: arkSelected, isOpen }"
-        :selected-option="
-            selectedOption
-                ? {
-                      value: selectedOption.value,
-                      label: selectedOption?.label ?? selectedOption.value
-                  }
-                : null
-        "
-        @input="
-            $emit(
-                'update:selectedOption',
-                options.find(d => d.value === $event.target.value)
-            )
-        "
-    >
-        <SelectLabel v-if="label">{{ label }}</SelectLabel>
-        <SelectTrigger asChild>
-            <button
-                class="flex w-72 items-center justify-between rounded-lg border border-base-300 bg-base-100 px-3 py-2"
+    <div class="flex flex-col items-start justify-center">
+        <Select
+            v-slot="{ selectedOption: arkSelected, isOpen }"
+            :selected-option="
+                currentOption
+                    ? {
+                          value: currentOption.value,
+                          label: currentOption?.label ?? currentOption.value
+                      }
+                    : null
+            "
+            @change="d => d && $emit('change', d.value)"
+        >
+            <SelectLabel
+                v-if="label"
+                class="mb-1 ml-1 flex text-xs font-medium text-base-content text-opacity-80"
+                >{{ label }}</SelectLabel
             >
-                {{ (selectedOption ?? arkSelected)?.label ?? placeholder }}
-                <v-icon
-                    name="hi-chevron-down"
-                    :class="{ '-rotate-180': isOpen }"
-                    class="transition"
-                />
-            </button>
-        </SelectTrigger>
-        <Teleport to="body">
-            <SelectPositioner
-                :class="{ hidden: !isOpen }"
-                class="w-72 rounded-lg border border-base-300"
-            >
-                <SelectContent>
-                    <SelectOptionGroup
-                        v-for="[group, options] in optionGroups"
-                        :key="group"
-                        :id="group"
-                        class="flex flex-col"
+            <SelectTrigger asChild>
+                <button
+                    class="flex w-72 items-center justify-between rounded-lg border border-base-300 bg-base-100 px-3 py-2"
+                >
+                    {{ (currentOption ?? arkSelected)?.label ?? placeholder }}
+                    <v-icon
+                        name="hi-chevron-down"
+                        :class="{ '-rotate-180': isOpen }"
+                        class="transition"
+                    />
+                </button>
+            </SelectTrigger>
+            <Teleport to="body">
+                <Presence>
+                    <Motion
+                        v-show="isOpen"
+                        :initial="{ opacity: 0 }"
+                        :animate="{ opacity: 1 }"
+                        :exit="{ opacity: 0 }"
+                        :transition="{ duration: 0.5 }"
                     >
-                        <SelectOptionGroupLabel
-                            v-if="group"
-                            :htmlFor="group"
-                            class="ml-3 mt-2 text-sm font-light"
+                        <SelectPositioner
+                            :class="{ hidden: !isOpen }"
+                            class="w-72 rounded-lg border border-base-300 bg-base-100"
                         >
-                            {{ group }}
-                        </SelectOptionGroupLabel>
-                        <ArkSelectOption
-                            v-for="{ value, label } in options"
-                            :key="value as any"
-                            :value="value"
-                            :label="label"
-                            class="m-1 cursor-pointer rounded-md bg-base-100 p-2 hover:bg-base-200"
-                        />
-                        <hr v-if="group !== ''" class="mx-2 my-1 opacity-5" />
-                    </SelectOptionGroup>
-                </SelectContent>
-            </SelectPositioner>
-        </Teleport>
-    </Select>
+                            <SelectContent>
+                                <SelectOptionGroup
+                                    v-for="[group, options] in optionGroups"
+                                    :key="group"
+                                    :id="group"
+                                    class="flex flex-col"
+                                >
+                                    <SelectOptionGroupLabel
+                                        v-if="group"
+                                        :htmlFor="group"
+                                        class="ml-3 mt-2 text-sm font-light"
+                                    >
+                                        {{ group }}
+                                    </SelectOptionGroupLabel>
+                                    <ArkSelectOption
+                                        v-for="{ value, label } in options"
+                                        :key="value as any"
+                                        :value="value"
+                                        :label="label ? label : value"
+                                        class="m-1 cursor-pointer rounded-md bg-base-100 p-2 hover:bg-base-200"
+                                    />
+                                    <hr v-if="group !== ''" class="mx-2 my-1 opacity-5" />
+                                </SelectOptionGroup>
+                            </SelectContent>
+                        </SelectPositioner>
+                    </Motion>
+                </Presence>
+            </Teleport>
+        </Select>
+    </div>
 </template>
