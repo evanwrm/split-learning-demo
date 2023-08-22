@@ -1,3 +1,4 @@
+import { arrayToB64, b64ToArray } from "@/lib/utils/serde";
 import { InferenceSession, Tensor } from "onnxruntime-web";
 
 export type ONNXBackend = "wasm" | "webgl";
@@ -34,8 +35,15 @@ export const runModel = async (
         throw new Error("Failed to run model");
     }
 };
-
 export const fetchModel = async (modelPath: string) => {
     const res = await fetch(modelPath);
     return await res.arrayBuffer();
+};
+
+export const serializeTensor = (tensor: Tensor) => {
+    return arrayToB64(tensor.data as any);
+};
+export const deserializeTensor = (b64: string, shape: number[], type: Tensor.Type = "float32") => {
+    const array = b64ToArray(b64, type as any);
+    return new Tensor(type, array as any, shape);
 };

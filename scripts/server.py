@@ -5,20 +5,22 @@ from typing import Any
 
 import click
 import lightning as L
-import split_learning
 import torch
 from fastapi import APIRouter, FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from split_learning.models.vision.cnn_2d import CNN2DServer
+from torch import nn
+from uvicorn import Config, Server
+
+import split_learning
+from split_learning.models.vision.cnn_2d import CNN2D, CNN2DServer
 from split_learning.schemas.message import MessageType, WSMessage
+from split_learning.utils import utils
 from split_learning.utils.serde import (
     decode_message_b64,
     deserialize_tensor,
     encode_message_b64,
     serialize_tensor,
 )
-from torch import nn
-from uvicorn import Config, Server
 
 
 class ConnectionManager:
@@ -110,7 +112,16 @@ def main(
     manager = ConnectionManager()
 
     # model
-    model = CNN2DServer(in_channels=1, dim_out=10, img_size=28)
+    model = CNN2D(
+        in_channels=1,
+        dim_out=10,
+        img_size=28,
+        dropout=0.15,
+    )
+    model_path = utils.data_path() / "models/mnist/model.pt"
+    model.load_state_dict(torch.load(model_path))
+
+    model = CNN2DServer(in_channels=1, dim_out=10, img_size=28, model=model)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
     criterion = nn.CrossEntropyLoss()
     model, optimizer = fabric.setup(model, optimizer)
@@ -120,7 +131,6 @@ def main(
         await manager.connect(websocket)
         try:
             while True:
-                model.train()
                 optimizer.zero_grad()
 
                 messages_bytes = await websocket.receive_bytes()
@@ -138,6 +148,7 @@ def main(
                     activations = activations.reshape(*message.data["tensor_shape"])
                     labels = labels.to(fabric.device)
 
+                    model.train()
                     activations.requires_grad = True
                     outputs = model(activations)
                     loss = criterion(outputs, labels)
@@ -153,6 +164,27 @@ def main(
                         type=MessageType.GRADS,
                         data={"tensor_shape": grads.shape, "loss": loss.item()},
                         raw={"tensor": serialized_grads},
+                    )
+                    encoded_response = encode_message_b64(response_message)
+                    await websocket.send_bytes(encoded_response)
+                elif message.type == MessageType.ACTIVATIONS:
+                    activations = deserialize_tensor(
+                        message.raw["tensor"], dtype=torch.float32
+                    )
+
+                    activations = activations.to(fabric.device)
+                    activations = activations.reshape(*message.data["tensor_shape"])
+
+                    model.eval()
+                    outputs = model(activations)
+
+                    # send logits
+                    logits = outputs.detach().clone()
+                    serialized_logits = serialize_tensor(logits.cpu())
+                    response_message = WSMessage(
+                        type=MessageType.LOGITS,
+                        data={"tensor_shape": logits.shape},
+                        raw={"tensor": serialized_logits},
                     )
                     encoded_response = encode_message_b64(response_message)
                     await websocket.send_bytes(encoded_response)

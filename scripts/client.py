@@ -5,9 +5,13 @@ from pathlib import Path
 
 import click
 import lightning as L
-import split_learning
 import torch
 import websockets
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from tqdm import tqdm
+
+import split_learning
 from split_learning.models.vision.cnn_2d import CNN2DClient
 from split_learning.schemas.message import MessageType, WSMessage
 from split_learning.utils import datasets as datasets
@@ -17,9 +21,6 @@ from split_learning.utils.serde import (
     encode_message_b64,
     serialize_tensor,
 )
-from torch.utils.data import DataLoader
-from torchvision import transforms
-from tqdm import tqdm
 
 # logger
 _logger = logging.getLogger(__name__)
@@ -87,7 +88,7 @@ def main(
     mnist_train_transform = transforms.Compose(
         [
             transforms.RandomCrop(28, padding=4),
-            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(10),
             transforms.ToTensor(),
             mnist_normalize,
         ]

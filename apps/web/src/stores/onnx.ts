@@ -10,7 +10,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useOnnxStore = defineStore("onnx", () => {
-    const sessionBackend = ref<ONNXBackend>("webgl");
+    const sessionBackend = ref<ONNXBackend>("wasm");
     const session = ref<InferenceSession | null>(null);
     const cpuSession = ref<InferenceSession | null>(null);
     const gpuSession = ref<InferenceSession | null>(null);

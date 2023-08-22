@@ -7,6 +7,7 @@ import torch
 from bitarray import bitarray
 from bitarray.util import ba2int, int2ba
 from pydantic import BaseModel
+
 from split_learning.schemas.message import WSMessage
 
 # dtypes

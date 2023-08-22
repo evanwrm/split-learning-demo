@@ -11,6 +11,7 @@ class MessageType(str, Enum):
     ACTIVATIONS_AND_LABELS = "activations_and_labels"
     GRADS = "grads"
     LABELS = "labels"
+    LOGITS = "logits"
 
 
 class WSMessage(BaseModel):

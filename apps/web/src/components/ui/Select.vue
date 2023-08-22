@@ -55,14 +55,23 @@ const optionGroups = computed(() => {
             "
             @change="d => d && $emit('change', d.value)"
         >
-            <SelectLabel
-                v-if="label"
-                class="mb-1 ml-1 flex text-xs font-medium text-base-content text-opacity-80"
-                >{{ label }}</SelectLabel
-            >
+            <div class="relative ml-1 flex text-xs font-medium text-base-content text-opacity-80">
+                <SelectLabel
+                    v-if="label"
+                    class="absolute bottom-1 left-1 transition-all"
+                    :class="{
+                        '!bottom-2': isOpen
+                    }"
+                >
+                    {{ label }}
+                </SelectLabel>
+            </div>
             <SelectTrigger asChild>
                 <button
-                    class="flex w-72 items-center justify-between rounded-lg border border-base-300 bg-base-100 px-3 py-2"
+                    class="flex w-72 items-center justify-between rounded-lg border border-base-300 bg-base-100 px-3 py-2 outline-none ring-base-300 ring-offset-0 transition"
+                    :class="{
+                        'ring-2 ring-base-300 ring-offset-2 ring-offset-base-100': isOpen
+                    }"
                 >
                     {{ (currentOption ?? arkSelected)?.label ?? placeholder }}
                     <v-icon
@@ -105,6 +114,9 @@ const optionGroups = computed(() => {
                                         :value="value"
                                         :label="label ? label : value"
                                         class="m-1 cursor-pointer rounded-md bg-base-100 p-2 hover:bg-base-200"
+                                        :class="{
+                                            'bg-base-200/80': value === currentOption?.value
+                                        }"
                                     />
                                     <hr v-if="group !== ''" class="mx-2 my-1 opacity-5" />
                                 </SelectOptionGroup>

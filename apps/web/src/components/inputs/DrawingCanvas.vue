@@ -116,14 +116,14 @@ const stopDraw = (e: PointerEvent | TouchEvent) => {
         draw(e);
     }
 
-    drawing.value = false;
-
     // auto save
-    if (props.autoSave) {
+    if (props.autoSave && drawing.value) {
         setTimeout(() => {
             if (!drawing.value) save();
         }, 100);
     }
+
+    drawing.value = false;
 };
 const draw = (e: PointerEvent | TouchEvent) => {
     if (!drawing.value) return;
