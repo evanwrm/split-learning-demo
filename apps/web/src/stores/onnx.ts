@@ -1,7 +1,7 @@
 import type { ONNXBackend } from "@/lib/utils/onnx";
 import {
-    createModelCpu,
-    createModelGpu,
+    createModel,
+    executionProviders,
     fetchModel,
     runModel as runOnnxModel
 } from "@/lib/utils/onnx";
@@ -12,21 +12,15 @@ import { ref } from "vue";
 export const useOnnxStore = defineStore("onnx", () => {
     const sessionBackend = ref<ONNXBackend>("wasm");
     const session = ref<InferenceSession | null>(null);
-    const cpuSession = ref<InferenceSession | null>(null);
-    const gpuSession = ref<InferenceSession | null>(null);
     const modelLoading = ref(false);
     const modelFile = ref<ArrayBuffer | null>(null);
 
     const initSession = async (backend: ONNXBackend, modelFile: ArrayBuffer) => {
         modelLoading.value = true;
         try {
-            if (backend === "wasm") {
-                cpuSession.value = await createModelCpu(modelFile);
-                session.value = cpuSession.value;
-            } else {
-                gpuSession.value = await createModelGpu(modelFile);
-                session.value = gpuSession.value;
-            }
+            if (executionProviders.includes(backend)) {
+                session.value = await createModel(modelFile);
+            } else throw new Error(`Invalid backend: ${backend}`);
         } catch (e) {
             console.error(e);
         } finally {
@@ -55,8 +49,6 @@ export const useOnnxStore = defineStore("onnx", () => {
     return {
         sessionBackend,
         session,
-        cpuSession,
-        gpuSession,
         modelLoading,
         modelFile,
         setBackend,

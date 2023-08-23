@@ -12,7 +12,7 @@ import {
     imageDataToGrayscale
 } from "@/lib/utils/image";
 import { argmax, softmax } from "@/lib/utils/math";
-import { deserializeTensor, serializeTensor } from "@/lib/utils/onnx";
+import { deserializeTensor, executionProviderConfig, serializeTensor } from "@/lib/utils/onnx";
 import { useOnnxStore } from "@/stores/onnx";
 import { useWebsocketStore } from "@/stores/websocket";
 import * as Plot from "@observablehq/plot";
@@ -124,10 +124,12 @@ watchEffect(() => {
             <div class="mt-6 flex flex-col items-center justify-center gap-4 md:mt-2 md:flex-row">
                 <Select
                     label="Backend"
-                    :options="[
-                        { value: 'wasm', label: 'WASM' },
-                        { value: 'webgl', label: 'WebGL' }
-                    ]"
+                    :options="
+                        Object.entries(executionProviderConfig).map(([k, v]) => ({
+                            value: k,
+                            label: v.name
+                        }))
+                    "
                     :selected-option="onnx.sessionBackend"
                     @change="d => onnx.setBackend(d)"
                     class="mb-4"

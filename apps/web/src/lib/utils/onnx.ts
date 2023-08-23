@@ -1,19 +1,34 @@
 import { arrayToB64, b64ToArray } from "@/lib/utils/serde";
 import { InferenceSession, Tensor } from "onnxruntime-web";
 
-export type ONNXBackend = "wasm" | "webgl";
+export const executionProviders = [
+    "wasm",
+    "webgl",
+    "cpu",
+    "xnnpack",
+    "webnn"
+    // "webgpu"
+] as const;
+export type ONNXBackend = (typeof executionProviders)[number];
+export const executionProviderConfig: Record<ONNXBackend, { name: string }> = {
+    wasm: { name: "WebAssembly" },
+    webgl: { name: "WebGL" },
+    cpu: { name: "CPU" },
+    xnnpack: { name: "XNNPACK" },
+    webnn: { name: "WebNN" }
+    // webgpu: { name: "WebGPU" }
+};
 
 const init = () => {
     // env.wasm.simd = false;
 };
 
-export const createModelCpu = async (model: ArrayBuffer): Promise<InferenceSession> => {
+export const createModel = async (
+    model: ArrayBuffer,
+    ep: string = "wasm"
+): Promise<InferenceSession> => {
     init();
-    return await InferenceSession.create(model, { executionProviders: ["wasm"] });
-};
-export const createModelGpu = async (model: ArrayBuffer): Promise<InferenceSession> => {
-    init();
-    return await InferenceSession.create(model, { executionProviders: ["webgl"] });
+    return await InferenceSession.create(model, { executionProviders: [ep] });
 };
 
 export const runModel = async (
